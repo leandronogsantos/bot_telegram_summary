@@ -1,0 +1,5 @@
+python-dotenv
+jupyterlab
+groq
+PyPDF2
+python-telegram-bot==22.4
