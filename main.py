@@ -22,27 +22,22 @@ async def handle_pdf(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("⚠️ Please send a PDF file.")
         return
 
-    # Download file into memory
     file = await context.bot.get_file(document.file_id)
     file_bytes = BytesIO()
     await file.download_to_memory(out=file_bytes)
 
-    # Reset pointer
     file_bytes.seek(0)
 
-    # Extract text from PDF
     reader = PyPDF2.PdfReader(file_bytes)
     text = ""
     for page in reader.pages:
         text += page.extract_text() or ""
 
-    # Use your model to summarize
     prompt = text[:limit_characters]  # limit text length to avoid overload
     await update.message.reply_text(f"📄 Received: {document.file_name}\nGenerating summary...")
 
-    # Dummy call (replace with your predict function)
     summary = predict(client, system_prompt, user_prompt + prompt)
-    formatted_summary = "📌 **Resumo do PDF:**\n\n" + summary.strip()
+    formatted_summary = "📌 **Summary:**\n\n" + summary.strip()
     await update.message.reply_text(formatted_summary, parse_mode="Markdown")
 
 async def handle_non_pdfs(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -53,7 +48,6 @@ def main():
     app = Application.builder().token(tl_token).build()
 
     app.add_handler(CommandHandler("start", start))
-    # Only PDF documents
     app.add_handler(MessageHandler(filters.Document.PDF, handle_pdf))
 
     app.add_handler(MessageHandler(~filters.Document.ALL, handle_non_pdfs))
